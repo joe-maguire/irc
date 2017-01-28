@@ -5,7 +5,7 @@ defmodule Irc.Message.Params do
 
   defstruct middles: [], trailing: nil
 
-  @type params :: %Params{middles: [String.t], trailing: String.t}
+  @type t :: %Params{middles: [String.t], trailing: String.t}
 
   def from_string(" " <> rest) do
     rest |> String.split(" ", trim: true) |> route_params([])
