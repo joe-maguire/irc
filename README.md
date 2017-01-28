@@ -1,15 +1,15 @@
-# Elixir IRC package
+# Elixir IRC package [![Build Status](https://travis-ci.org/derpydev/irc.svg?branch=master)](https://travis-ci.org/derpydev/irc)
 
 A small, simple library for working with the IRC protocol without any assumptions
 about your use case. This library does not manage any connection for you; it is
 only meant to provide an abstraction for easily working with the protocol.
 
 ## Goals
-[] Compliant with RFC 1459
-[] Supports IRCv3.x
-[] Fully typespec'd
-[] Stable API
-[] Fully tested
+[ ] Compliant with RFC 1459
+[ ] Supports IRCv3.x
+[ ] Fully typespec'd
+[ ] Stable API
+[ ] Fully tested
 
 ## Installation
 
