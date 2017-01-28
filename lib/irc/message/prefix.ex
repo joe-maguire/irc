@@ -16,21 +16,27 @@ defmodule Irc.Message.Prefix do
   @invalid_prefix_error "Invalid prefix: server or nickname required"
 
   @spec from_string(String.t) :: Prefix.t | invalid_prefix_error
-  def from_string(raw) when is_binary(raw) do
+  def from_string(raw) do
     case String.split(raw, "!", parts: 2) do
       [""]  -> {:error, @invalid_prefix_error}
       ["", _] -> {:error, @invalid_prefix_error}
       ["@" <> _] -> {:error, @invalid_prefix_error}
-      [name_host] ->
-        case String.split(name_host, "@", parts: 2) do
-          [name, host] -> %Prefix{name: name, user: nil, host: host}
-          [name] -> %Prefix{name: name, user: nil, host: nil}
-        end
-      [name, user_host] ->
-        case String.split(user_host, "@", parts: 2) do
-          [user, host] -> %Prefix{name: name, user: user, host: host}
-          [user] -> %Prefix{name: name, user: user, host: nil}
-        end
+      [name_host] -> handle_name_host(name_host)
+      [name, user_host] -> handle_name_with_user_host(name, user_host)
+    end
+  end
+
+  defp handle_name_host(name_host) do
+    case String.split(name_host, "@", parts: 2) do
+      [name, host] -> %Prefix{name: name, user: nil, host: host}
+      [name] -> %Prefix{name: name, user: nil, host: nil}
+    end
+  end
+
+  defp handle_name_with_user_host(name, user_host) do
+    case String.split(user_host, "@", parts: 2) do
+      [user, host] -> %Prefix{name: name, user: user, host: host}
+      [user] -> %Prefix{name: name, user: user, host: nil}
     end
   end
 
@@ -41,16 +47,16 @@ defmodule Irc.Message.Prefix do
 
   @spec to_string(Prefix.t) :: String.t
   def to_string(%Prefix{name: name, user: user, host: nil}) do
-    name <> "!" <> user
+    "#{name}!#{user}"
   end
 
   @spec to_string(Prefix.t) :: String.t
   def to_string(%Prefix{name: name, user: nil, host: host}) do
-    name <> "@" <> host
+    "#{name}@#{host}"
   end
 
   @spec to_string(Prefix.t) :: String.t
   def to_string(%Prefix{name: name, user: user, host: host}) do
-     name <> "!" <> user <> "@" <> host
+    name <> "!" <> user <> "@" <> host
   end
 end
