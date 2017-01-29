@@ -40,23 +40,15 @@ defmodule Irc.Message.Prefix do
     end
   end
 
-  @spec to_string(Prefix.t) :: String.t
-  def to_string(%Prefix{name: name, user: nil, host: nil}) do
-    name
-  end
+  @doc """
 
-  @spec to_string(Prefix.t) :: String.t
-  def to_string(%Prefix{name: name, user: user, host: nil}) do
-    "#{name}!#{user}"
-  end
-
-  @spec to_string(Prefix.t) :: String.t
-  def to_string(%Prefix{name: name, user: nil, host: host}) do
-    "#{name}@#{host}"
-  end
-
+  """
   @spec to_string(Prefix.t) :: String.t
   def to_string(%Prefix{name: name, user: user, host: host}) do
-    name <> "!" <> user <> "@" <> host
+    "#{name}#{prefix(user,"!")}#{prefix(host, "@")}"
   end
+
+  defp prefix(nil, _prefix), do: ""
+
+  defp prefix(value, prefix), do: "#{prefix}#{value}"
 end

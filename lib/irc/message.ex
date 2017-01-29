@@ -22,10 +22,10 @@ defmodule Irc.Message do
   end
 
   def to_string(%Message{prefix: nil, command: command, params: params}) do
-    Command.to_string command
+    Command.to_string(command)
   end
 
   def to_string(%Message{prefix: prefix, command: command, params: params}) do
-    Command.to_string command
+    Command.to_string(command)
   end
 end
