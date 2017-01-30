@@ -54,7 +54,7 @@ defmodule Irc.Message.Prefix do
   end
 
   # Prefix the value string with the given prefix string
-  @spec prefix(String.t, String.t) :: String.t 
+  @spec prefix(String.t, String.t) :: String.t
   defp prefix(nil, _prefix), do: ""
   defp prefix(value, prefix), do: [prefix, value] |> Enum.join
 end

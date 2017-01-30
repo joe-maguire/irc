@@ -18,7 +18,7 @@ defmodule Irc.Message.Params do
     {:ok, %Params{middles: Enum.reverse(middles), trailing: trailing}}
   end
 
-  # There is either more than one trailing, or there are middles after a trailing
+  # There is something after a trailing
   @spec route_params([String.t], [String.t]) :: Params.t
   defp route_params([":" <> _trailing | _tail], _middles) do
     {:error, "Invalid params: trailing segment must only be in last position"}
@@ -54,7 +54,6 @@ defmodule Irc.Message.Params do
   easier to work with.
   """
   @spec flatten(Params.t) :: [String.t]
-  def flatten(params) do
-    params.middles ++ [params.trailing]
-  end
+  def flatten(%Params{middles: middles, trailing: nil}), do: middles
+  def flatten(params), do: params.middles ++ [params.trailing]
 end
