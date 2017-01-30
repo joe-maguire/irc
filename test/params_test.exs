@@ -40,7 +40,7 @@ defmodule Irc.Message.ParamsTest do
 
     Enum.zip(inputs, expected_outputs)
     |> Enum.each(fn ({input, expected}) ->
-      assert Params.from_string(input) == expected end)
+      assert Params.from_string(input) == {:ok, expected} end)
   end
 
   test "strings that have parts after a trailing part produce errors" do
