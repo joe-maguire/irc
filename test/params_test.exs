@@ -47,4 +47,20 @@ defmodule Irc.Message.ParamsTest do
     assert Params.from_string(" :trailing middle") ==
       {:error, "Invalid params: trailing segment must only be in last position"}
   end
+
+  test "can be flattened into a simple List" do
+    inputs = [
+      %Params{middles: [1, 2, 3], trailing: nil},
+      %Params{middles: [], trailing: nil},
+      %Params{middles: [1, 2, 3], trailing: 4},
+      %Params{middles: [], trailing: 4},
+    ]
+
+    expected_outputs = [[1, 2, 3], [], [1, 2, 3, 4], [4]]
+
+    [inputs, expected_outputs]
+    |> Enum.zip
+    |> Enum.each(fn {input, expected} ->
+      assert Params.flatten(input) == expected end)
+  end
 end
