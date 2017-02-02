@@ -1,5 +1,5 @@
 defmodule Irc.Message.PrefixTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Irc.Message.Prefix, as: Prefix
 

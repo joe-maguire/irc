@@ -1,5 +1,5 @@
 defmodule Irc.Message.CommandTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Irc.Message.Command, as: Command
 

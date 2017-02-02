@@ -1,5 +1,5 @@
 defmodule Irc.Message.ParamsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Irc.Message.Params, as: Params
 
