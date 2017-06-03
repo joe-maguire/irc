@@ -1,39 +1,269 @@
 defmodule Irc.Message.Command do
   @moduledoc """
+  A simple type representing the finite set of valid command and reply codes
+
+  This type essentially functions as an Enumeration, so while it is technically
+  just an atom, only a specific set of atoms are considered valid, and
+  attempting to use invalid values will result in an InvalidIrcMessageError.
   """
-  alias __MODULE__, as: Command
 
-  @typedoc ""
-  @type t :: :atom
+  alias __MODULE__
 
-  @typedoc ""
-  @type unrecognized_command_error :: {:error, String.t}
-
-  @spec from_string(String.t) :: Command.t | unrecognized_command_error
-  def from_string(raw), do: do_from_string(raw)
-
-  @doc """
-  """
-  @spec to_string(Command.t) :: String.t | unrecognized_command_error
-  def to_string(command), do: do_to_string(command)
-
-  @basic_commands [
-    :pass, :nick, :user, :oper, :mode, :service, :quit, :squit, :join, :part,
-	  :topic,	:names,	:list, :invite,	:kick, :privmsg, :notice, :motd, :lusers,
-    :version,	:stats, :links,	:time, :connect, :trace, :admin, :info,	:servlist,
-	  :squery, :whois, :whowas, :kill, :ping, :pong, :error, :away,	:rehash, :die,
-    :restart, :summon, :users, :wallops, :userhost, :ison, :server,	:njoin
+  @values [
+    pass: "PASS",
+    nick: "NICK",
+    user: "USER",
+    oper: "OPER",
+    mode: "MODE",
+    service: "SERVICE",
+    quit: "QUIT",
+    squit: "SQUIT",
+    join: "JOIN",
+    part: "PART",
+    topic: "TOPIC",
+    names: "NAMES",
+    list: "LIST",
+    invite: "INVITE",
+    kick: "KICK",
+    privmsg: "PRIVMSG",
+    notice: "NOTICE",
+    motd: "MOTD",
+    lusers: "LUSERS",
+    version: "VERSION",
+    stats: "STATS",
+    links: "LINKS",
+    time: "TIME",
+    connect: "CONNECT",
+    trace: "TRACE",
+    admin: "ADMIN",
+    info: "INFO",
+    servlist: "SERVLIST",
+    squery: "SQUERY",
+    who: "WHO",
+    whois: "WHOIS",
+    whowas: "WHOWAS",
+    kill: "KILL",
+    ping: "PING",
+    pong: "PONG",
+    error: "ERROR",
+    away: "AWAY",
+    rehash: "REHASH",
+    die: "DIE",
+    restart: "RESTART",
+    summon: "SUMMON",
+    users: "USERS",
+    wallops: "WALLOPS",
+    userhost: "USERHOST",
+    ison: "ISON",
+    server: "SERVER",
+    njoin: "NJOIN",
+    rpl_welcome: "001",
+    rpl_yourhost: "002",
+    rpl_created: "003",
+    rpl_myinfo: "004",
+    rpl_bounce: "005",
+    rpl_isupport: "005",
+    rpl_userhost: "302",
+    rpl_ison: "303",
+    rpl_away: "301",
+    rpl_unaway: "305",
+    rpl_nowaway: "306",
+    rpl_whoisuser: "311",
+    rpl_whoisserver: "312",
+    rpl_whoisoperator: "313",
+    rpl_whoisidle: "317",
+    rpl_endofwhois: "318",
+    rpl_whoischannels: "319",
+    rpl_whowasuser: "314",
+    rpl_endofwhowas: "369",
+    rpl_liststart: "321",
+    rpl_list: "322",
+    rpl_listend: "323",
+    rpl_uniqopis: "325",
+    rpl_channelmodeis: "324",
+    rpl_notopic: "331",
+    rpl_topic: "332",
+    rpl_inviting: "341",
+    rpl_summoning: "342",
+    rpl_invitelist: "346",
+    rpl_endofinvitelist: "347",
+    rpl_exceptlist: "348",
+    rpl_endofexceptlist: "349",
+    rpl_version: "351",
+    rpl_whoreply: "352",
+    rpl_endofwho: "315",
+    rpl_namreply: "353",
+    rpl_endofnames: "366",
+    rpl_links: "364",
+    rpl_endoflinks: "365",
+    rpl_banlist: "367",
+    rpl_endofbanlist: "368",
+    rpl_info: "371",
+    rpl_endofinfo: "374",
+    rpl_motdstart: "375",
+    rpl_motd: "372",
+    rpl_endofmotd: "376",
+    rpl_youreoper: "381",
+    rpl_rehashing: "382",
+    rpl_youreservice: "383",
+    rpl_time: "391",
+    rpl_usersstart: "392",
+    rpl_users: "393",
+    rpl_endofusers: "394",
+    rpl_nousers: "395",
+    rpl_tracelink: "200",
+    rpl_traceconnecting: "201",
+    rpl_tracehandshake: "202",
+    rpl_traceunknown: "203",
+    rpl_traceoperator: "204",
+    rpl_traceuser: "205",
+    rpl_traceserver: "206",
+    rpl_traceservice: "207",
+    rpl_tracenewtype: "208",
+    rpl_traceclass: "209",
+    rpl_tracereconnect: "210",
+    rpl_tracelog: "261",
+    rpl_traceend: "262",
+    rpl_statslinkinfo: "211",
+    rpl_statscommands: "212",
+    rpl_endofstats: "219",
+    rpl_statsuptime: "242",
+    rpl_statsoline: "243",
+    rpl_umodeis: "221",
+    rpl_servlist: "234",
+    rpl_servlistend: "235",
+    rpl_luserclient: "251",
+    rpl_luserop: "252",
+    rpl_luserunknown: "253",
+    rpl_luserchannels: "254",
+    rpl_luserme: "255",
+    rpl_adminme: "256",
+    rpl_adminloc1: "257",
+    rpl_adminloc2: "258",
+    rpl_adminemail: "259",
+    rpl_tryagain: "263",
+    err_nosuchnick: "401",
+    err_nosuchserver: "402",
+    err_nosuchchannel: "403",
+    err_cannotsendtochan: "404",
+    err_toomanychannels: "405",
+    err_wasnosuchnick: "406",
+    err_toomanytargets: "407",
+    err_nosuchservice: "408",
+    err_noorigin: "409",
+    err_norecipient: "411",
+    err_notexttosend: "412",
+    err_notoplevel: "413",
+    err_wildtoplevel: "414",
+    err_badmask: "415",
+    err_unknowncommand: "421",
+    err_nomotd: "422",
+    err_noadmininfo: "423",
+    err_fileerror: "424",
+    err_nonicknamegiven: "431",
+    err_erroneusnickname: "432",
+    err_nicknameinuse: "433",
+    err_nickcollision: "436",
+    err_unavailresource: "437",
+    err_usernotinchannel: "441",
+    err_notonchannel: "442",
+    err_useronchannel: "443",
+    err_nologin: "444",
+    err_summondisabled: "445",
+    err_usersdisabled: "446",
+    err_notregistered: "451",
+    err_needmoreparams: "461",
+    err_alreadyregistred: "462",
+    err_nopermforhost: "463",
+    err_passwdmismatch: "464",
+    err_yourebannedcreep: "465",
+    err_youwillbebanned: "466",
+    err_keyset: "467",
+    err_channelisfull: "471",
+    err_unknownmode: "472",
+    err_inviteonlychan: "473",
+    err_bannedfromchan: "474",
+    err_badchannelkey: "475",
+    err_badchanmask: "476",
+    err_nochanmodes: "477",
+    err_banlistfull: "478",
+    err_noprivileges: "481",
+    err_chanoprivsneeded: "482",
+    err_cantkillserver: "483",
+    err_restricted: "484",
+    err_uniqopprivsneeded: "485",
+    err_nooperhost: "491",
+    err_umodeunknownflag: "501",
+    err_usersdontmatch: "502",
+    cap: "CAP",
+    cap_ls: "LS",
+    cap_list: "LIST",
+    cap_req: "REQ",
+    cap_ack: "ACK",
+    cap_nak: "NAK",
+    cap_clear: "CLEAR",
+    cap_end: "END",
+    authenticate: "AUTHENTICATE",
+    rpl_loggedin: "900",
+    rpl_loggedout: "901",
+    rpl_nicklocked: "902",
+    rpl_saslsuccess: "903",
+    err_saslfail: "904",
+    err_sasltoolong: "905",
+    err_saslaborted: "906",
+    err_saslalready: "907",
+    rpl_saslmechs: "908",
+    rpl_statscline: "213",
+    rpl_statsnline: "214",
+    rpl_statsiline: "215",
+    rpl_statskline: "216",
+    rpl_statsqline: "217",
+    rpl_statsyline: "218",
+    rpl_serviceinfo: "231",
+    rpl_endofservices: "232",
+    rpl_service: "233",
+    rpl_statsvline: "240",
+    rpl_statslline: "241",
+    rpl_statshline: "244",
+    rpl_statssline: "245",
+    rpl_statsping: "246",
+    rpl_statsbline: "247",
+    rpl_statsdline: "250",
+    rpl_none: "300",
+    rpl_whoischanop: "316",
+    rpl_killdone: "361",
+    rpl_closing: "362",
+    rpl_closeend: "363",
+    rpl_infostart: "373",
+    rpl_myportis: "384",
+    err_noservicehost: "492"
   ]
 
-  # Generate function clauses for each command
-  @basic_commands
-  |> Enum.each(fn (command) ->
-    string = command |> Atom.to_string |> String.upcase
-    defp do_from_string(unquote(string)), do: unquote(command)
-    defp do_to_string(unquote(command)), do: unquote(string)
+  @error_msg "Unrecognized command"
+
+  @type t :: atom()
+
+  @doc """
+  Attempts to convert the given string into a Command
+  """
+  @spec decode(String.t) :: {:ok, Command.t} | {:error, String.t}
+  def decode(str), do: do_decode(str)
+
+  @doc """
+  Converts the Command into its string representation
+
+  Note: passing an invalid C
+  ommand will raise an error
+  """
+  @spec encode!(Command.t) :: String.t
+  def encode!(command), do: do_encode(command)
+
+  @values
+  |> Enum.each(fn ({key, val}) ->
+    defp do_decode(unquote(val)), do: unquote(key)
+    defp do_encode(unquote(key)), do: unquote(val)
   end)
 
-  # Define a catchall, error-producing case
-  defp do_from_string(_string), do: {:error, "Unrecognized command"}
-  defp do_to_string(_atom), do: {:error, "Unrecognized command"}
+  defp do_decode(_), do: {:error, @error_msg}
+  defp do_encode(_), do: raise InvalidIrcMessageError, @error_msg
 end
