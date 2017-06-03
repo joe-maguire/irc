@@ -3,6 +3,4 @@ defmodule Irc.MessageTest do
 
   alias Irc.Messgae
 
-  test ""
-  end
 end

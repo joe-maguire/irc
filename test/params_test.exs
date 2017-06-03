@@ -10,19 +10,19 @@ defmodule Irc.Message.ParamsTest do
       %Params{middles: [], trailing: nil},
       %Params{middles: [], trailing: "trailing"},
       %Params{middles: ["middle"], trailing: nil },
-      %Params{middles: ["middle1", "middle2", "middle3"], trailing: "trailing"}
+      %Params{middles: ["middle3", "middle2", "middle1"], trailing: "trailing"}
     ]
 
     expected_outputs = [
-      "",
-      " :trailing",
-      " middle",
-      " middle1 middle2 middle3 :trailing"
+      [],
+      [" ", ":", "trailing"],
+      [" ", "middle"],
+      [" ", "middle1", " ", "middle2", " ", "middle3", " ", ":", "trailing"]
     ]
 
     Enum.zip(inputs, expected_outputs)
     |> Enum.each(fn ({input, expected}) ->
-      assert Params.to_string(input) == expected end)
+      assert Params.encode(input) == expected end)
   end
 
   test "can be initialized from a valid raw string" do
@@ -35,28 +35,28 @@ defmodule Irc.Message.ParamsTest do
     expected_outputs = [
       %Params{middles: [], trailing: "trailing"},
       %Params{middles: ["middle"], trailing: nil },
-      %Params{middles: ["middle1", "middle2", "middle3"], trailing: "trailing"}
+      %Params{middles: ["middle3", "middle2", "middle1"], trailing: "trailing"}
     ]
 
     Enum.zip(inputs, expected_outputs)
     |> Enum.each(fn ({input, expected}) ->
-      assert Params.from_string(input) == {:ok, expected} end)
+      assert Params.decode(input) == {:ok, expected} end)
   end
 
   test "strings that have parts after a trailing part produce errors" do
-    assert Params.from_string(" :trailing middle") ==
-      {:error, "Invalid params: trailing segment must only be in last position"}
+    assert Params.decode(" :trailing middle") ==
+      {:error, "Trailing parameter segment must only be in last position"} 
   end
 
   test "can be flattened into a simple List" do
     inputs = [
-      %Params{middles: [1, 2, 3], trailing: nil},
+      %Params{middles: [3, 2, 1], trailing: nil},
       %Params{middles: [], trailing: nil},
-      %Params{middles: [1, 2, 3], trailing: 4},
+      %Params{middles: [3, 2, 1], trailing: 4},
       %Params{middles: [], trailing: 4},
     ]
 
-    expected_outputs = [[1, 2, 3], [], [1, 2, 3, 4], [4]]
+    expected_outputs = [[3, 2, 1], [], [4, 3, 2, 1], [4]]
 
     [inputs, expected_outputs]
     |> Enum.zip

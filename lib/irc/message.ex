@@ -67,5 +67,7 @@ defmodule Irc.Message do
 end
 
 defimpl String.Chars, for: Irc.Message do
-  def to_string(message), do: message |> Irc.Message.encode |> to_string
+  def to_string(message) do
+    message |> Irc.Message.encode |> Kernel.to_string
+  end
 end

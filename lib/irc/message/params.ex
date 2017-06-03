@@ -54,7 +54,7 @@ defmodule Irc.Message.Params do
   end
 
   def encode(%Params{middles: middles, trailing: trailing}) do
-    middles |> append_spaces([@space, @comma, trailing])
+    middles |> append_spaces([@space, @colon, trailing])
   end
 
   defp append_spaces([h | t], acc) do
@@ -77,5 +77,7 @@ defmodule Irc.Message.Params do
 end
 
 defimpl String.Chars, for: Irc.Message.Params do
-  def to_string(params), do: params |> Irc.Message.Params.encode |> to_string
+  def to_string(params) do
+    params |> Irc.Message.Params.encode |> Kernel.to_string
+  end
 end

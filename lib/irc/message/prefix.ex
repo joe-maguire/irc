@@ -63,5 +63,7 @@ defmodule Irc.Message.Prefix do
 end
 
 defimpl String.Chars, for: Irc.Message.Prefix do
-  def to_string(prefix), do: prefix |> Irc.Message.Prefix.encode |> to_string
+  def to_string(prefix) do
+    prefix |> Irc.Message.Prefix.encode |> Kernel.to_string
+  end
 end

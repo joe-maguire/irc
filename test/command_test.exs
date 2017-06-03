@@ -5,16 +5,19 @@ defmodule Irc.Message.CommandTest do
 
   doctest Command
 
-  test "has a valid string representation" do
-    assert Command.to_string(:pass) == "PASS"
+  test "encodes to the proper string representation" do
+    assert Command.encode!(:pass) == "PASS"
   end
 
-  test "can be initialized from a valid raw string" do
-    assert Command.from_string("PASS") == :pass
+  test "can be decoded from a valid string" do
+    assert Command.decode("PASS") == :pass
   end
 
-  test "unrecognized commands produce an error" do
-    assert Command.from_string("nonsense") == {:error, "Unrecognized command"}
-    assert Command.to_string(:nonsense) == {:error, "Unrecognized command"}
+  test "decoding an unrecognized command produces an error" do
+    assert Command.decode("nonsense") == {:error, "Unrecognized command"}
+  end
+
+  test "encoding an unrecognized command raises an exception" do
+    assert_raise(InvalidIrcMessageError, fn -> Command.encode!(:nonsense) end)
   end
 end

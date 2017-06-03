@@ -19,7 +19,7 @@ defmodule Irc.Message.PrefixTest do
 
     Enum.zip(inputs, expected_outputs)
     |> Enum.each(fn ({input, expected}) ->
-      assert Prefix.from_string(input) == expected end)
+      assert Prefix.decode(input) == expected end)
   end
 
   test "has a string representation that is compatible with the spec" do
@@ -30,17 +30,22 @@ defmodule Irc.Message.PrefixTest do
       %Prefix{name: "server", user: "user", host: "host"}
     ]
 
-    expected_outputs = ["server", "server!user", "server@host", "server!user@host"]
+    expected_outputs = [
+      [":", "server", " "],
+      [":", "server", "!", "user", " "],
+      [":", "server", "@", "host", " "],
+      [":", "server", "!", "user", "@", "host", " "]
+    ]
 
     Enum.zip(inputs, expected_outputs)
     |> Enum.each(fn ({input, expected}) ->
-      assert Prefix.to_string(input) == expected end)
+      assert Prefix.encode(input) == expected end)
   end
 
   test "invalid raw strings return errors" do
-    assert Prefix.from_string("") == {:error, @invalid_prefix_error}
-    assert Prefix.from_string("!user") == {:error, @invalid_prefix_error}
-    assert Prefix.from_string("@host") == {:error, @invalid_prefix_error}
-    assert Prefix.from_string("!user@host") == {:error, @invalid_prefix_error}
+    assert Prefix.decode("") == {:error, @invalid_prefix_error}
+    assert Prefix.decode("!user") == {:error, @invalid_prefix_error}
+    assert Prefix.decode("@host") == {:error, @invalid_prefix_error}
+    assert Prefix.decode("!user@host") == {:error, @invalid_prefix_error}
   end
 end
